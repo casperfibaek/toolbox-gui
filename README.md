@@ -3,6 +3,9 @@ A small library to enable the fast creation of Graphical User Interfaces for pyt
 
 Bring you python API to the masses, easily and convinently. 
 
+    pip install toolbox-creator-CFI
+    pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple toolbox-creator-CFI
+
 ## Features:
 * Create a toolbox from your python library fast
 * Cross platform GUI
