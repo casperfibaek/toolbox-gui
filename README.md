@@ -143,7 +143,7 @@ These options are available for all input types.
 
 # Example use
 
-![Screenshot showing the tool selection menu](./screenshot_main.jpg "Select tool")
+![Screenshot showing the tool selection menu](https://github.com/casperfibaek/toolbox-gui/blob/raw/screenshot_main.jpg "Select tool")
 
 
 ## First create or import a function to add:
@@ -228,7 +228,7 @@ tools["Create CSV Simple"] = {
 }
 ```
 
-![Screenshot showing the function menu for the simple example tool.](./screenshot_function_simple.jpg "Simple tool selected")
+![Screenshot showing the function menu for the simple example tool.](https://github.com/casperfibaek/toolbox-gui/raw/main/screenshot_function_simple.jpg "Simple tool selected")
 
 ```python
 
@@ -369,8 +369,7 @@ if __name__ == "__main__":
     create_gui(tools, name="Example Toolbox")
 ```
 
-![Screenshot showing the function menu for the advanced example tool.](./screenshot_function_advanced.jpg "Advanced tool selected")
-
+![Screenshot showing the function menu for the advanced example tool.](https://github.com/casperfibaek/toolbox-gui/raw/main/screenshot_function_advanced.jpg "Advanced tool selected")
 
 ## Built and distribute
 python -m build
