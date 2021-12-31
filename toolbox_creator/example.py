@@ -1,4 +1,4 @@
-import os, sys
+import os
 
 
 def add_line_to_csv(file_path, line):
@@ -181,8 +181,15 @@ tools["Create CSV Advanced"] = {
     ],
 }
 
-if __name__ == "__main__":
-    sys.path.append("../")
+
+def run_example():
     from toolbox_creator.gui import create_gui
 
     create_gui(tools, name="Example Toolbox", create_console=False, auto_scale=False)
+
+
+if __name__ == "__main__":
+    import sys
+
+    sys.path.append("../")
+    run_example()
