@@ -1,4 +1,3 @@
-from ctypes import resize
 import PySimpleGUIQt as sg
 import datetime
 import calendar

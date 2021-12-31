@@ -20,9 +20,8 @@ def get_args(func):
             args += 1
         else:
             kwargs.append(param.name)
-    
-    return args, kwargs
 
+    return args, kwargs
 
 
 def get_list_of_functions(tools):
@@ -151,6 +150,15 @@ def validate_type(input_type, input_value, name, tool_name, tools):
                     cast = int(cast)
 
                 valid = True
+
+                if "min_value" in definition.keys() and cast < definition["min_value"]:
+                    valid = False
+                    message = f"{name}: {input_value} is less than the minimum value of {definition['min_value']}."
+                elif (
+                    "max_value" in definition.keys() and cast > definition["max_value"]
+                ):
+                    valid = False
+                    message = f"{name}: {input_value} is higher than the maximum value of {definition['max_value']}."
             except:
                 valid = False
                 message = f"{name}: {input_value} is not a valid number."
@@ -202,10 +210,10 @@ def validate_type(input_type, input_value, name, tool_name, tools):
 
             if "min_value" in definition.keys() and cast < definition["min_value"]:
                 valid = False
-                message = f"{name}: {input_value} is below the minimum value."
+                message = f"{name}: {input_value} is below the minimum value of {definition['min_value']}."
             elif "max_value" in definition.keys() and cast > definition["max_value"]:
                 valid = False
-                message = f"{name}: {input_value} is above the maximum value."
+                message = f"{name}: {input_value} is above the maximum value of {definition['max_value']}."
             else:
                 valid = True
         except:
@@ -216,6 +224,22 @@ def validate_type(input_type, input_value, name, tool_name, tools):
         if isinstance(input_value, str):
             valid = True
             cast = input_value
+
+            if (
+                "min_length" in definition.keys()
+                and len(input_value) < definition["min_length"]
+            ):
+                valid = False
+                min_chars = definition["min_length"]
+                message = f"{name}: {input_value} is not a valid string. String too short. Min chars: {min_chars}."
+
+            if (
+                "max_length" in definition.keys()
+                and len(input_value) > definition["max_length"]
+            ):
+                valid = False
+                max_chars = definition["max_length"]
+                message = f"{name}: {input_value} is not a valid string. String too long. Max chars: {max_chars}"
         else:
             valid = False
             message = f"{name}: {input_value} is not a valid string."
@@ -274,6 +298,7 @@ def validate_input(tool_name, parameters, tools):
                 input_value,
                 name,
                 tool_name,
+                tools,
             )
 
         ret_obj["valid"].append(valid)
@@ -290,12 +315,12 @@ def validate_input(tool_name, parameters, tools):
     return ret_obj
 
 
-def update_inputs(event, values, window, listeners, function_name):
+def update_inputs(event, values, window, listeners, function_name, tools):
     validated = None
     for listener in listeners:
         if listener["enabled_by"] == event:
             if validated is None:
-                validated = validate_input(function_name, values)
+                validated = validate_input(function_name, values, tools)
 
             for idx in range(len(validated["names"])):
                 name = validated["names"][idx]
@@ -340,24 +365,100 @@ def validate_parameter(parameter, args):
     if "type" not in param_options.keys():
         errors.append(f"{param_name}: missing type.")
     elif param_options["type"] not in parameter_types:
-        errors.append(f"{param_name}: {param_options['type']} is not a valid type. Valid types are: {parameter_types}")
-    
+        errors.append(
+            f"{param_name}: {param_options['type']} is not a valid type. Valid types are: {parameter_types}"
+        )
+    else:
+        if param_options["type"] == "slider":
+            if "min_value" not in param_options.keys():
+                errors.append(f"{param_name}: missing min_value.")
+            elif "max_value" not in param_options.keys():
+                errors.append(f"{param_name}: missing max_value.")
+            elif "step" not in param_options.keys():
+                errors.append(f"{param_name}: missing step.")
+            elif not isinstance(param_options["min_value"], (int, float)):
+                errors.append(f"{param_name}: min_value is not a number.")
+            elif not isinstance(param_options["max_value"], (int, float)):
+                errors.append(f"{param_name}: max_value is not a number.")
+            elif param_options["min_value"] >= param_options["max_value"]:
+                errors.append(f"{param_name}: min_value must be less than max.")
+
+        if param_options["type"] == "radio":
+            if "options" not in param_options.keys():
+                errors.append(f"{param_name}: missing options.")
+            else:
+                default_found = False
+                for idx, option in enumerate(param_options["options"]):
+                    if "label" not in option.keys():
+                        errors.append(
+                            f"{param_name}: missing label for option {idx + 1}."
+                        )
+                    elif "value" not in option.keys():
+                        errors.append(
+                            f"{param_name}: missing value for option {idx + 1}."
+                        )
+                    elif "key" not in option.keys():
+                        errors.append(
+                            f"{param_name}: missing key for option {idx + 1}."
+                        )
+
+                    if "default" in option.keys() and option["default"]:
+                        default_found = True
+
+                if default_found is False:
+                    errors.append(
+                        f"{param_name}: no default option found, please set one radio button as default."
+                    )
+
+        if param_options["type"] == "dropdown":
+            if "options" not in param_options.keys():
+                errors.append(f"{param_name}: missing options.")
+            else:
+                default_found = False
+                for idx, option in enumerate(param_options["options"]):
+                    if "label" not in option.keys():
+                        errors.append(
+                            f"{param_name}: missing label for option {idx + 1}."
+                        )
+                    elif "value" not in option.keys():
+                        errors.append(
+                            f"{param_name}: missing value for option {idx + 1}."
+                        )
+
+                    if "default" in option.keys() and option["default"]:
+                        default_found = True
+
+                if default_found is False:
+                    errors.append(
+                        f"{param_name}: no default option found, please set one radio button as default."
+                    )
+
     if "display_name" not in param_options.keys():
         errors.append(f"{param_name}: missing display_name.")
     else:
         if not isinstance(param_options["display_name"], str):
-            errors.append(f"{param_name}: {param_options['display_name']} is not a valid display_name.")
+            errors.append(
+                f"{param_name}: {param_options['display_name']} is not a valid display_name."
+            )
         elif len(param_options["display_name"]) == 0:
-            errors.append(f"{param_name}: {param_options['display_name']} is not a valid display_name. Length can't be zero.")
+            errors.append(
+                f"{param_name}: {param_options['display_name']} is not a valid display_name. Length can't be zero."
+            )
         elif len(param_options["display_name"]) > 26:
-            errors.append(f"{param_name}: {param_options['display_name']} is not a valid display_name. Length can't be greater than 26. Currently: {len(param_options['display_name'])}")
-    
+            errors.append(
+                f"{param_name}: {param_options['display_name']} is not a valid display_name. Length can't be greater than 26. Currently: {len(param_options['display_name'])}"
+            )
+
     args, kwargs = args
     if "keyword" in param_options.keys() and param_options["keyword"]:
         if param_name not in kwargs:
-            errors.append(f"{param_name} specified as a keyword argument, but the function takes no keyword argument of that name.")
+            errors.append(
+                f"{param_name} specified as a keyword argument, but the function takes no keyword argument of that name."
+            )
     elif len(kwargs) > 0 and param_name in kwargs:
-        print(f"WARNING. Parameter {param_name} is not a keyword argument, but the function takes a keyword argument of that name. This may cause unexpected behavior. Consider setting keyword=True for the parameter.")
+        print(
+            f"WARNING. Parameter {param_name} is not a keyword argument, but the function takes a keyword argument of that name. This may cause unexpected behavior. Consider setting keyword=True for the parameter."
+        )
 
     return errors
 
@@ -365,20 +466,19 @@ def validate_parameter(parameter, args):
 def validate_tool_list(tool_list):
     if not isinstance(tool_list, dict):
         raise TypeError("tool_list must be a dictionary.")
-    
+
     errors = []
     args = (0, [])
-
 
     for tool_name in tool_list.keys():
         if len(tool_name) == 0:
             errors.append("Tool names cannot be empty.")
         if len(tool_name) > 50:
             errors.append("Tool names cannot be longer than 50 characters.")
-        
+
         if not isinstance(tool_list[tool_name], dict):
             errors.append(f"{tool_name} must contain a dictionary.")
-        
+
         tool = tool_list[tool_name]
         if "description" not in tool:
             errors.append(f"{tool_name} must contain a description.")
@@ -386,10 +486,12 @@ def validate_tool_list(tool_list):
             if not isinstance(tool["description"], str):
                 errors.append(f"{tool_name} description must be a string.")
             if len(tool["description"]) > 500:
-                errors.append(f"{tool_name} description cannot be longer than 500 characters.")
+                errors.append(
+                    f"{tool_name} description cannot be longer than 500 characters."
+                )
             if len(tool["description"]) == 0:
                 errors.append(f"{tool_name} description cannot be empty.")
-                
+
         if "function" not in tool:
             errors.append(f"{tool_name} must contain a function.")
         else:
@@ -397,7 +499,7 @@ def validate_tool_list(tool_list):
                 errors.append(f"{tool_name} function must be callable.")
             else:
                 args = get_args(tool["function"])
-        
+
         if "parameters" not in tool:
             errors.append(f"{tool_name} must contain parameters.")
         else:
@@ -409,22 +511,26 @@ def validate_tool_list(tool_list):
                 else:
                     for parameter in tool["parameters"]:
                         if not isinstance(parameter, dict):
-                            errors.append(f"{tool_name} parameters must be a list of dictionaries.")
+                            errors.append(
+                                f"{tool_name} parameters must be a list of dictionaries."
+                            )
                         else:
                             errors += validate_parameter(parameter, args)
 
         if "function" in tool and callable(tool["function"]):
-            if "parameters" in tool and len(tool["parameters"]) > len(inspect.signature(tool["function"]).parameters):
-                errors.append(f"{tool_name} function must have less or the same number of parameters as the number of taken by the functionparameters.")
+            if "parameters" in tool and len(tool["parameters"]) > len(
+                inspect.signature(tool["function"]).parameters
+            ):
+                errors.append(
+                    f"{tool_name} function must have less or the same number of parameters as the number of taken by the functionparameters."
+                )
 
     if len(errors) > 0:
         for error in errors:
             print(error)
         return False
-    
+
     return True
-
-
 
 
 def layout_from_name(name, tools, create_console=False):

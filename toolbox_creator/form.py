@@ -1,9 +1,9 @@
 import threading
 import PySimpleGUIQt as sg
 from PySimpleGUIQt import POPUP_BUTTONS_NO_BUTTONS, WIN_CLOSED
-from globe_icon import globe_icon
-from date_picker import popup_get_date
-from funcs import (
+from toolbox_creator.globe_icon import globe_icon
+from toolbox_creator.date_picker import popup_get_date
+from toolbox_creator.funcs import (
     layout_from_name,
     validate_input,
     get_default_date,
@@ -29,9 +29,11 @@ def validate_inputs(function_name, values_func, window, tools):
     return validation
 
 
-def open_function(function_name, tools, create_console=False):
+def open_function(function_name, tools, create_console=False, icon=globe_icon):
     global thread, thread_message
-    layout, buteo_function, listeners = layout_from_name(function_name, tools, create_console=create_console)
+    layout, buteo_function, listeners = layout_from_name(
+        function_name, tools, create_console=create_console
+    )
 
     window_func = sg.Window(
         function_name,
@@ -39,7 +41,7 @@ def open_function(function_name, tools, create_console=False):
         resizable=True,
         size=(900, 1100),
         finalize=True,
-        icon=globe_icon,
+        icon=icon,
         element_justification="center",
         border_depth=0,
         element_padding=(0, 0),
@@ -64,7 +66,9 @@ def open_function(function_name, tools, create_console=False):
             run_clicked = True
 
             try:
-                validation = validate_inputs(function_name, values_func, window_func, tools)
+                validation = validate_inputs(
+                    function_name, values_func, window_func, tools
+                )
 
                 if False in validation["valid"]:
                     sg.popup(
@@ -160,10 +164,15 @@ def open_function(function_name, tools, create_console=False):
             target_param = event_func[len("slider_") :]
             window_func[target_param].update(value=values_func[event_func])
             if run_clicked:
-                validate_inputs(function_name, values_func, window_func)
+                validate_inputs(function_name, values_func, window_func, tools)
         else:
             update_inputs(
-                event_func, values_func, window_func, listeners, function_name
+                event_func,
+                values_func,
+                window_func,
+                listeners,
+                function_name,
+                tools,
             )
             if run_clicked:
                 validate_inputs(function_name, values_func, window_func, tools)

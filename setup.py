@@ -3,15 +3,15 @@ import setuptools
 
 def readme():
     try:
-        with open('README.md') as f:
+        with open("README.md") as f:
             return f.read()
     except IOError:
-        return ''
+        return ""
 
 
 setuptools.setup(
     name="toolbox-creator-CFI",
-    version="0.0.13",
+    version="0.0.18",
     author="Casper Fibaek",
     author_email="casperfibaek@gmail.com",
     description="Create a toolbox for your functions",
@@ -25,9 +25,9 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
+        "Development Status :: 2 - Pre-Alpha",
     ],
-    package_dir={"": "src"},
-    packages=setuptools.find_packages(),
+    packages=["toolbox_creator"],
+    install_requires=["PySimpleGUIQt==0.35.0"],
     include_package_data=True,
-    python_requires=">=3.7",
 )
