@@ -403,11 +403,21 @@ def validate_parameter(parameter, args):
                         )
 
                     if "default" in option.keys() and option["default"]:
-                        default_found = True
+                        if default_found is True:
+                            errors.append(
+                                f"{param_name}: multiple default options found."
+                            )
+                        else:
+                            default_found = True
 
                 if default_found is False:
                     errors.append(
                         f"{param_name}: no default option found, please set one radio button as default."
+                    )
+
+                if len(param_options["options"]) < 2:
+                    errors.append(
+                        f"{param_name}: radio options must have at least 2 options."
                     )
 
         if param_options["type"] == "dropdown":
@@ -426,11 +436,21 @@ def validate_parameter(parameter, args):
                         )
 
                     if "default" in option.keys() and option["default"]:
-                        default_found = True
+                        if default_found is True:
+                            errors.append(
+                                f"{param_name}: multiple default options found."
+                            )
+                        else:
+                            default_found = True
 
                 if default_found is False:
                     errors.append(
                         f"{param_name}: no default option found, please set one radio button as default."
+                    )
+
+                if len(param_options["options"]) < 2:
+                    errors.append(
+                        f"{param_name}: dropdown options must have at least 2 options."
                     )
 
     if "display_name" not in param_options.keys():

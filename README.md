@@ -1,23 +1,149 @@
 # toolbox-gui
-Create a gui for a function toolbox. Supports the following input types:
-- "file_open"
-- "file_save"
-- "file_open_multiple"
-- "number"
-- "boolean"
-- "radio"
-- "dropdown"
-- "slider"
-- "string"
-- "password"
-- "date_year"
-- "folder_open"
-- "folder_save"
+Create a gui for a function toolbox.
+
+## Features:
+* Create a toolbox from your python library fast
+* Cross platform GUI
+* Python native
+* Bundle to .exe, .dmg or .bin using pyinstaller
+* Built on PySimpleGUI
+
+TODO before 0.1.0
+
+- Improve readme
+- Add callback option
+- Reduce spaghetti
+- Fix scaling on non 4k screens.
+
+TODO: before 1.0.0
+- Migrate to pyside6
+
+## Supports the following input types:
+### file_open
+Opens a file dialog to select a single file.
+### file_save
+Opens a file dialog to save a single file. File types can be specified.
+### file_open_multiple
+Opens a file dialog and enable the selection of multiple files.
+
+### folder_open
+Opens a dialog to enable the selection of a folder.
+
+### folder_save
+Same as folder_open.
+### number
+Create a number input field. Only integers and floats are allowed. Minimum and maximim values can be specified.
+```python
+{
+    "a_parameter_taking_a_number": {
+        "type": "number",
+        "min_value": 0, # Optional. Default: -inf
+        "max_value": 100, # Optional. Default: +inf
+    }
+}
+```
+### string, password
+Create a string or password input field. Password is the same as string, but the input is hidden in the display.
+```python
+{
+    "a_parameter_taking_a_string": {
+        "type": "string", # Or type: "password" for hidden characters
+        "min_length": 1, # Optional. Default: 0
+        "max_length": 100, # Optional. Default: =inf
+    }
+}
+```
+
+### boolean
+Create a bolean input field. Output will be True or False.
+```python
+{
+    "a_parameter_taking_a_bool": {
+        "type": "boolean",
+        "default": True, # Optional. Default: False
+    }
+}
+```
+### radio
+Create a radio input field. Must have multiple values and one default value.
+```python
+{
+    "a_parameter_with_radio_options": {
+        "type": "radio",
+        "options": [
+            {
+                "label": "Windows (\\r\\n)",
+                "key": "windows",
+                "value": "\r\n",
+                "default": True, # Default option must be specified.
+            },
+            {
+                "label": "Unix (\\n)",
+                "key": "linux",
+                "value": "\n",
+            },
+            {
+                "label": "Mac (\\r)",
+                "key": "macos",
+                "value": "\r",
+            },
+        ],
+    }
+}
+```
+### dropdown
+Creates a drop down field of multiple values.
+```python
+{
+    "a_parameter_with_dropdown_options": {
+        "type": "dropdown",
+        "options": [
+            {"label": "Commas (,)", "value": ",", "default": True}, # Default option must be specifed.
+            {"label": "Spaces ( )", "value": " "},
+            {"label": "Semicolons (;)", "value": ";"},
+            {"label": "Other..", "value": "other"},
+        ],
+    }
+},
+```
+### slider
+Creates a horisontal slider field for numerical values. Min, max, and step values can be specified.
+```python
+{
+    "a_parameter_with_a_numerical_value_as_input": {
+        "type": "slider",
+        "min_value": 0,
+        "max_value": 100,
+        "step": 1,
+    }
+}
+```
+### date_year
+Creates a date selector. Output of selection is in the format yyyymmdd
+```python
+{
+    "a_parameter_taking_a_date_as_input": {
+        "type": "date_year",
+        "default": "days_ago_14", # optional. Default: "today". options are: days_ago_x, today, or a specific date
+    }
+},
+```
+
+These options are available for all input types.
+```python
+"display_name": "Parameter name",                   # The parameter name to show in the toolbox.
+"default": 100,                                     # Default value.
+"keyword": True,                                    # Pass parameter as arg or kwarg. Default arg.
+"tooltip": "This tooltip is displayed on hover",    # Tooltip to display on hover.
+"enabled_by": {"other_parameter": ["value"]},       # If other parameter has value. Show parameter, otherwise hide.
+```` 
+
+# Example use
 
 ![Screenshot showing the tool selection menu](./screenshot_main.jpg "Select tool")
 
 
-First create or import a function to add:
+## First create or import a function to add:
 ```python
     import os
 
@@ -50,7 +176,7 @@ First create or import a function to add:
         return file_path
 ```
 
-Then define the parameters of the tools:
+## Then define the parameters of the tools:
 ```python
     tools = {}
 
@@ -61,16 +187,16 @@ Then define the parameters of the tools:
             {
                 "name": {
                     "type": "string",
-                    "display_name": "File Name",  # optional default (parameter name)
-                    "default": "",  # optional default ("")
-                    "tooltip": "The name of the csv file to create.",  # optional default ("")
+                    "display_name": "File Name",                        # Optional. Default: parameter name
+                    "default": "",                                      # Optional. Default: ""
+                    "tooltip": "The name of the csv file to create.",   # Optional. Default: ""
                 }
             },
             {
                 "out_folder": {
                     "type": "folder_open",
-                    "display_name": "Out Folder",  # optional default (parameter name)
-                    "tooltip": "The path to folder to save the CSV file.",  # optional default ("")
+                    "display_name": "Out Folder",                           # Optional. Default: parameter name
+                    "tooltip": "The path to folder to save the CSV file.",  # Optional. Default: ""
                 }
             },
         ],
@@ -88,17 +214,17 @@ Then define the parameters of the tools:
             {
                 "name": {
                     "type": "string",
-                    "display_name": "File Name",  # optional default (parameter name)
-                    "default": "new_csv_file",  # optional default ("")
-                    "min_length": 1,  # optional default (0)
-                    "tooltip": "The name of the csv file to create.",  # optional default ("")
+                    "display_name": "File Name",                        # Optional. Default: parameter name
+                    "default": "new_csv_file",                          # Optional. Default: ""
+                    "min_length": 1,                                    # Optional. Default: 0
+                    "tooltip": "The name of the csv file to create.",   # Optional. Default: ""
                 }
             },
             {
                 "out_folder": {
                     "type": "folder_open",
-                    "display_name": "Out Folder",  # optional default (parameter name)
-                    "tooltip": "The path to folder to save the CSV file.",  # optional default ("")
+                    "display_name": "Out Folder",                           # Optional. Default: parameter name
+                    "tooltip": "The path to folder to save the CSV file.",  # Optional. Default: ""
                 }
             },
             {
@@ -106,10 +232,10 @@ Then define the parameters of the tools:
                     "type": "number",
                     "min_value": 0,
                     "max_value": 100,
-                    "display_name": "Number of Columns",  # optional default (parameter name)
-                    "default": 1,  # optional default (0)
-                    "keyword": True,  # optional default (False)
-                    "tooltip": "The number of columns in the CSV file.",  # optional default ("")
+                    "display_name": "Number of Columns",                    # Optional. Default: parameter name
+                    "default": 1,                                           # Optional. Default: 0
+                    "keyword": True,                                        # Optional. Default: False
+                    "tooltip": "The number of columns in the CSV file.",    # Optional. Default: ""
                 }
             },
             {
@@ -118,10 +244,10 @@ Then define the parameters of the tools:
                     "min_value": 0,
                     "max_value": 100,
                     "step": 1,
-                    "display_name": "Number of Rows",  # optional default (parameter name)
-                    "default": 1,  # optional default (min_value)
-                    "keyword": True,  # optional default (False)
-                    "tooltip": "The number of rows in the CSV file.",  # optional default ("")
+                    "display_name": "Number of Rows",                   # Optional. Default: parameter name
+                    "default": 1,                                       # Optional. Default: min_value
+                    "keyword": True,                                    # Optional. Default: False
+                    "tooltip": "The number of rows in the CSV file.",   # Optional. Default: ""
                 }
             },
             {
@@ -139,38 +265,38 @@ Then define the parameters of the tools:
                         {"label": "Bars (|)", "value": "|"},
                         {"label": "Other..", "value": "other"},
                     ],
-                    "display_name": "Seperator",  # optional default (parameter name)
-                    "keyword": True,  # optional default (False)
-                    "tooltip": "The seperator to use in the CSV file.",  # optional default ("")
+                    "display_name": "Seperator",                            # Optional. Default: parameter name
+                    "keyword": True,                                        # Optional. Default: False
+                    "tooltip": "The seperator to use in the CSV file.",     # Optional. Default: ""
                 }
             },
             {
                 "other_seperator": {
                     "type": "string",
-                    "display_name": "Other Seperator",  # optional default (parameter name)
-                    "max_length": 4,  # optional default (inf)
-                    "default": ",",  # optional default ("")
-                    "enabled_by": {"seperator": ["other"]},  # optional default (None)
-                    "keyword": True,  # optional default (False)
-                    "tooltip": "The seperator to use in the CSV file.",  # optional default ("")
+                    "display_name": "Other Seperator",                      # Optional. Default: parameter name
+                    "max_length": 4,                                        # Optional. Default: +inf
+                    "default": ",",                                         # Optional. Default: ""
+                    "enabled_by": {"seperator": ["other"]},                 # Optional. Default: None
+                    "keyword": True,                                        # Optional. Default: False
+                    "tooltip": "The seperator to use in the CSV file.",     # Optional. Default: ""
                 }
             },
             {
                 "metadata_date": {
                     "type": "date_year",
-                    "display_name": "Metadata Date",  # optional default (parameter name)
-                    "default": "today",  # optional (defaults to today) options are: days_ago_x, today, tomorrow, yesterday, or a specific date
-                    "keyword": True,  # optional default (False)
-                    "tooltip": "The date to use in the metadata.",  # optional default ("")
+                    "display_name": "Metadata Date",                # Optional. Default: parameter name
+                    "default": "today",                             # optional. Default: "today". options are: days_ago_x, today, or a specific date
+                    "keyword": True,                                # Optional. Default: False
+                    "tooltip": "The date to use in the metadata.",  # Optional. Default: ""
                 }
             },
             {
                 "include_header": {
                     "type": "boolean",
-                    "display_name": "Include Header",  # optional default (parameter name)
-                    "default": True,  # optional default (False)
-                    "keyword": True,  # optional default (False)
-                    "tooltip": "Include a header row in the CSV file.",  # optional default ("")
+                    "display_name": "Include Header",                       # Optional. Default: parameter name
+                    "default": True,                                        # Optional. Default: False
+                    "keyword": True,                                        # Optional. Default: False
+                    "tooltip": "Include a header row in the CSV file.",     # Optional. Default: ""
                 }
             },
             {
@@ -186,27 +312,27 @@ Then define the parameters of the tools:
                         {"label": "Unix (\\n)", "key": "linux", "value": "\n"},
                         {"label": "Mac (\\r)", "key": "macos", "value": "\r"},
                     ],
-                    "display_name": "Linebreak",  # optional default (parameter name)
-                    "tooltip": "The linebreak to use in the CSV file.",  # optional default ("")
-                    "keyword": True,  # optional default (False)
+                    "display_name": "Linebreak",                            # Optional. Default: parameter name
+                    "tooltip": "The linebreak to use in the CSV file.",     # Optional. Default: ""
+                    "keyword": True,                                        # Optional. Default: False
                 }
             },
             {
                 "prefix": {
                     "type": "string",
-                    "display_name": "Prefix",  # optional default (parameter name)
-                    "default": "",  # optional default ("")
-                    "keyword": True,  # optional default (False)
-                    "tooltip": "Prefix to add to the file name.",  # optional default ("")
+                    "display_name": "Prefix",                       # Optional. Default: parameter name
+                    "default": "",                                  # Optional. Default: ""
+                    "keyword": True,                                # Optional. Default: False
+                    "tooltip": "Prefix to add to the file name.",   # Optional. Default: ""
                 }
             },
             {
                 "postfix": {
                     "type": "string",
-                    "display_name": "Postfix",  # optional default (parameter name)
-                    "default": "",  # optional default ("")
-                    "keyword": True,  # optional default (False)
-                    "tooltip": "Postfix to add to the file name.",  # optional default ("")
+                    "display_name": "Postfix",                      # Optional. Default: parameter name
+                    "default": "",                                  # Optional. Default: ""
+                    "keyword": True,                                # Optional. Default: False
+                    "tooltip": "Postfix to add to the file name.",  # Optional. Default: ""
                 }
             },
         ],
@@ -221,6 +347,7 @@ Then define the parameters of the tools:
 ![Screenshot showing the function menu for the advanced example tool.](./screenshot_function_advanced.jpg "Advanced tool selected")
 
 
+## Built and distribute
 python -m build
 
 python -m twine upload --repository testpypi dist/*
