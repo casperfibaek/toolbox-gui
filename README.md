@@ -143,7 +143,7 @@ These options are available for all input types.
 
 # Example use
 
-![Screenshot showing the tool selection menu](https://github.com/casperfibaek/toolbox-gui/blob/raw/screenshot_main.jpg "Select tool")
+![Screenshot showing the tool selection menu](https://github.com/casperfibaek/toolbox-gui/raw/main/screenshot_main.jpg "Select tool")
 
 
 ## First create or import a function to add:
