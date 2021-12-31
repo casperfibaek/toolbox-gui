@@ -1,7 +1,7 @@
 import PySimpleGUIQt as sg
 
 
-def home_layout(functions):
+def home_layout(functions, scalar=1.0, top_menu=True):
     description = "Select a function to run."
 
     menu_def = [
@@ -22,14 +22,14 @@ def home_layout(functions):
                 sg.Listbox(
                     [str(i) for i in functions],
                     key="-FUNC-LIST-",
-                    size_px=(300, None),
+                    size_px=(round(300 * scalar), None),
                     pad=((0, 0), (0, 0)),
                     enable_events=True,
                     default_values=[functions[0]],
                 )
             ]
         ],
-        size=(300, None),
+        size=(round(300 * scalar), None),
         pad=((0, 0), (0, 0)),
     )
 
@@ -49,14 +49,14 @@ def home_layout(functions):
                 sg.Button(
                     "Open Function",
                     key="-BUTTON1-",
-                    size_px=(500, 60),
+                    size_px=(round(500 * scalar), 60),
                     pad=((0, 0), (10, 0)),
                     bind_return_key=True,
                     border_width=0,
                 )
             ],
         ],
-        size=(500, None),
+        size=(round(500 * scalar), None),
         element_justification="left",
         pad=((0, 0), (0, 0)),
     )
@@ -64,19 +64,22 @@ def home_layout(functions):
     base_layout = [
         sg.Column(
             [[col1, col2]],
-            size=(920, None),
+            size=(round(920 * scalar), None),
             pad=((0, 0), (0, 0)),
             scrollable=True,
             element_justification="left",
         )
     ]
 
-    return [
-        [
-            sg.Menu(
-                menu_def,
-                tearoff=False,
-            )
-        ],
-        base_layout,
-    ]
+    if top_menu:
+        return [
+            [
+                sg.Menu(
+                    menu_def,
+                    tearoff=False,
+                )
+            ],
+            base_layout,
+        ]
+
+    return [base_layout]

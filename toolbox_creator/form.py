@@ -30,11 +30,18 @@ def validate_inputs(function_name, values_func, window, tools):
 
 
 def open_function(
-    function_name, tools, create_console=False, icon=globe_icon, scalar=1.0
+    function_name,
+    tools,
+    create_console=False,
+    icon=globe_icon,
+    theme="Reddit",
+    scalar=1.0,
 ):
     global thread, thread_message
+    sg.theme(theme)
+
     layout, buteo_function, listeners = layout_from_name(
-        function_name, tools, create_console=create_console
+        function_name, tools, create_console=create_console, scalar=scalar
     )
 
     window_func = sg.Window(

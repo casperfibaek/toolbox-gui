@@ -61,7 +61,7 @@ def parse_date(date_str):
         return get_today_date()
 
     elif "days_ago" in date_str:
-        days = int(date_str.split("_")[2])
+        days = round(date_str.split("_")[2])
         return get_days_ago(days)
     else:
         return get_today_date()
@@ -75,7 +75,7 @@ def get_param_name(tool_params):
 def get_default_date(target_param, window):
     date_str = window[target_param].Get()
 
-    return (int(date_str[0:4]), int(date_str[4:6]), int(date_str[6:8]))
+    return (round(date_str[0:4]), round(date_str[4:6]), round(date_str[6:8]))
 
 
 def validate_type(input_type, input_value, name, tool_name, tools):
@@ -147,7 +147,7 @@ def validate_type(input_type, input_value, name, tool_name, tools):
             try:
                 cast = float(input_value)
                 if cast.is_integer():
-                    cast = int(cast)
+                    cast = round(cast)
 
                 valid = True
 
@@ -206,7 +206,7 @@ def validate_type(input_type, input_value, name, tool_name, tools):
         try:
             cast = float(input_value)
             if cast.is_integer():
-                cast = int(cast)
+                cast = round(cast)
 
             if "min_value" in definition.keys() and cast < definition["min_value"]:
                 valid = False
@@ -476,7 +476,7 @@ def validate_parameter(parameter, args):
                 f"{param_name} specified as a keyword argument, but the function takes no keyword argument of that name."
             )
     elif len(kwargs) > 0 and param_name in kwargs:
-        print(
+        prround(
             f"WARNING. Parameter {param_name} is not a keyword argument, but the function takes a keyword argument of that name. This may cause unexpected behavior. Consider setting keyword=True for the parameter."
         )
 
@@ -547,13 +547,13 @@ def validate_tool_list(tool_list):
 
     if len(errors) > 0:
         for error in errors:
-            print(error)
+            prround(error)
         return False
 
     return True
 
 
-def layout_from_name(name, tools, create_console=False):
+def layout_from_name(name, tools, create_console=False, scalar=1.0):
     if name not in tools:
         raise Exception("Tool not found")
 
@@ -608,10 +608,11 @@ def layout_from_name(name, tools, create_console=False):
             default_date[2], default_date[0], default_date[1]
         ).strftime("%Y%m%d")
 
-        input_pad = ((0, 10), (0, 0))
-        button_size = (16, 1.2)
-        input_size = (54, 1.2)
-        text_size = (24, 1.2)
+        text_height = scalar * 1.2
+        input_pad = ((0, round(10 * scalar)), (0, 0))
+        button_size = (round(16 * scalar), text_height)
+        input_size = (round(54 * scalar), text_height)
+        text_size = (round(24 * scalar), text_height)
         param_input = None
         path_input = None
         justification = "center"
@@ -722,7 +723,7 @@ def layout_from_name(name, tools, create_console=False):
                 enable_events=True,
                 default=default,
                 tooltip=tooltip,
-                pad=((0, 0), (8, 0)),
+                pad=((0, 0), (round(8 * scalar), 0)),
             )
         elif parameter_type == "slider":
             param_args = parameter[parameter_name].keys()
@@ -752,7 +753,7 @@ def layout_from_name(name, tools, create_console=False):
                 tick_interval=step,
                 key="slider_" + parameter_name,
                 tooltip=tooltip,
-                size_px=(360, 38),
+                size_px=(round(360 * scalar), round(38 * scalar)),
                 pad=input_pad,
             )
 
@@ -797,7 +798,7 @@ def layout_from_name(name, tools, create_console=False):
                 else:
                     selected = False
 
-                left_pad = 0 if idx == 0 else 16
+                left_pad = 0 if idx == 0 else round(16 * scalar)
 
                 param_input.append(
                     sg.Radio(
@@ -842,7 +843,7 @@ def layout_from_name(name, tools, create_console=False):
                 background_color=sg.theme_background_color(),
                 size=text_size,
                 pad=((0, 0), (0, 0)),
-                margins=(0, 0, 4, 0),
+                margins=(0, 0, round(4 * scalar), 0),
                 justification="right",
             )
 
@@ -908,7 +909,7 @@ def layout_from_name(name, tools, create_console=False):
                     [
                         [param_text],
                     ],
-                    size=(120, 36),
+                    size=(round(120 * scalar), round(36 * scalar)),
                     pad=((0, 0), (0, 0)),
                     element_justification="r",
                     visible=show_row,
@@ -918,7 +919,7 @@ def layout_from_name(name, tools, create_console=False):
                     [
                         param_inputs,
                     ],
-                    size=(260, 36),
+                    size=(round(260 * scalar), round(36 * scalar)),
                     pad=((0, 0), (0, 0)),
                     visible=show_row,
                     key=parameter_name + "_col2",
@@ -932,7 +933,7 @@ def layout_from_name(name, tools, create_console=False):
             sg.Column(
                 [
                     [
-                        sg.Text("", size=(26, button_size[1])),
+                        sg.Text("", size=(round(26 * scalar), button_size[1])),
                         sg.Button(
                             "Run",
                             size=button_size,
@@ -956,11 +957,11 @@ def layout_from_name(name, tools, create_console=False):
 
     layout.append(
         [
-            sg.Text("", size=(36, None)),
+            sg.Text("", size=(round(36 * scalar), None)),
             sg.Text(
                 "Progress:",
                 key="-PROGRESS-TEXT-",
-                pad=((20, 100), (0, 0)),
+                pad=((round(20 * scalar), round(100 * scalar)), (0, 0)),
             ),
             sg.Column(
                 [
@@ -969,8 +970,11 @@ def layout_from_name(name, tools, create_console=False):
                             1,
                             orientation="h",
                             key="-PROGRESS-",
-                            pad=((0, 24), (0, 0)),
-                            size=(input_size[0] - 4, 36),
+                            pad=((0, round(24 * scalar)), (0, 0)),
+                            size=(
+                                input_size[0] - round(4 * scalar),
+                                round(36 * scalar),
+                            ),
                         ),
                         sg.Button(
                             "Cancel",
@@ -978,12 +982,12 @@ def layout_from_name(name, tools, create_console=False):
                             button_color=(sg.theme_background_color(), "#d7a824"),
                             border_width=0,
                             size=button_size,
-                            pad=((10, 0), (0, 0)),
+                            pad=((round(10 * scalar), 0), (0, 0)),
                         ),
                     ],
                 ],
-                pad=((10, 10), (0, 0)),
-                size=(520, 36),
+                pad=((round(10 * scalar), round(10 * scalar)), (0, 0)),
+                size=(round(520 * scalar), round(36 * scalar)),
             ),
         ]
     )
@@ -992,8 +996,8 @@ def layout_from_name(name, tools, create_console=False):
         layout.append(
             [
                 sg.Output(
-                    pad=((0, 0), (10, 10)),
-                    size_px=(None, 200),
+                    pad=((0, 0), (round(10 * scalar), round(10 * scalar))),
+                    size_px=(None, round(200 * scalar)),
                     background_color="#f1f1f1",
                 ),
             ]
@@ -1003,7 +1007,7 @@ def layout_from_name(name, tools, create_console=False):
         [
             sg.Column(
                 layout,
-                size=(900, None),
+                size=(round(900 * scalar), None),
                 scrollable=True,
                 element_justification="left",
                 pad=((0, 0), (0, 0)),

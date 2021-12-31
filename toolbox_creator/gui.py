@@ -1,5 +1,6 @@
 import os
 import PySimpleGUIQt as sg
+from multiprocessing import Process
 from toolbox_creator.globe_icon import globe_icon
 from toolbox_creator.base import home_layout
 from toolbox_creator.form import open_function
@@ -32,6 +33,7 @@ def create_gui(
     create_console=False,
     icon=False,
     auto_scale=True,
+    top_menu=False,
     scalar=1.0,
 ):
 
@@ -51,10 +53,14 @@ def create_gui(
 
     window = sg.Window(
         name,
-        home_layout(available_functions),
+        home_layout(
+            available_functions,
+            scalar=scalar,
+            top_menu=top_menu,
+        ),
         resizable=True,
         auto_size_buttons=True,
-        size=(int(800 * scalar), int(600 * scalar)),
+        size=(round(800 * scalar), round(600 * scalar)),
         finalize=True,
         icon=globe_icon,
         element_justification="center",
@@ -68,6 +74,7 @@ def create_gui(
 
     list_not_clicked = True
     ignore_list_update = False
+    open_windows = []
     while True:
         event, values = window.read()
 
@@ -83,13 +90,27 @@ def create_gui(
                 and len(values["-FUNC-LIST-"]) != 0
             ):
                 function_name = values["-FUNC-LIST-"][0]
-                open_function(
-                    function_name,
-                    tools_list,
-                    create_console=create_console,
-                    icon=icon,
-                    scalar=scalar,
+
+                p = Process(
+                    target=open_function,
+                    args=(
+                        function_name,
+                        tools_list,
+                        create_console,
+                        icon,
+                        theme,
+                        scalar,
+                    ),
                 )
+                p.start()
+                open_windows.append(p)
+                # open_function(
+                #     function_name,
+                #     tools_list,
+                #     create_console=create_console,
+                #     icon=icon,
+                #     scalar=scalar,
+                # )
         elif event == "-FUNC-LIST-":
             if ignore_list_update:
                 ignore_list_update = False
@@ -116,6 +137,12 @@ def create_gui(
                 window["-FUNC-LIST-"].update(set_to_index=current_selection)
 
     window.close()
+
+    for p in open_windows:
+        try:
+            p.terminate()
+        except Exception:
+            pass
 
 
 # pyinstaller -wF --noconfirm --clean --noconsole --icon=./gui_elements/globe_icon.ico gui.py

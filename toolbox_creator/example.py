@@ -1,27 +1,54 @@
 import os
 
 
-def add_line_to_csv(file_path, line):
-    with open(file_path, "a") as file:
-        file.write(line + "\n")
+def add_line_to_csv(file_path, line, linebreak="\n"):
+    """Add a line to a CSV file."""
+    try:
+        with open(file_path, "a") as file:
+            file.write(line + linebreak)
+        return 1
+    except:
+        return 0
 
 
-def create_csv_file(
+# Example function to run
+def create_dummy_csv_file(
     name,
     folder,
     cols=1,
     rows=1,
     seperator=",",
     other_seperator=None,
-    metadata_date="today",
+    linebreak="\n",
     include_header=True,
-    linebreak="rn",
+    metadata_date="today",
     prefix="",
     postfix="",
+    verbose=False,
 ):
+    """
+    Creates a dummy csv file with rows and cols. Not very useful, but it's a good example.
+    """
     file_path = os.path.join(folder, prefix + name + postfix + ".csv")
+
+    if other_seperator is not None:
+        seperator = other_seperator
+
+    row = ("example" + seperator) * cols
+
     with open(file_path, "w") as file:
         file.write("")
+
+    if include_header:
+        header = ("header" + seperator) * cols
+        add_line_to_csv(os.path.join(folder, file_path), header, linebreak)
+
+    for _ in range(rows):
+        add_line_to_csv(os.path.join(folder, file_path), row, linebreak)
+
+    if verbose:
+        print(f"Created file: {file_path} on {metadata_date}")
+
     return file_path
 
 
@@ -29,7 +56,7 @@ tools = {}
 
 tools["Create CSV Simple"] = {
     "description": "Creates a new empty CSV file.",
-    "function": create_csv_file,
+    "function": create_dummy_csv_file,
     "parameters": [
         {
             "name": {
@@ -52,7 +79,7 @@ tools["Create CSV Simple"] = {
 
 tools["Create CSV Advanced"] = {
     "description": "Creates a new empty CSV file. (Advanced method.)",
-    "function": create_csv_file,
+    "function": create_dummy_csv_file,
     "parameters": [
         {
             "name": {
@@ -189,8 +216,10 @@ def run_example():
         tools,
         name="Example Toolbox",
         create_console=False,
-        auto_scale=False,
-        # scalar=0.6,
+        auto_scale=True,
+        scalar=0.6,
+        # theme="DarkGrey5",
+        theme="Reddit",
     )
 
 
