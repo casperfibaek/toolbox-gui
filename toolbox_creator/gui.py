@@ -33,8 +33,8 @@ def create_gui(
     create_console=False,
     icon=False,
     auto_scale=True,
+    scalar=0.6,
     top_menu=False,
-    scalar=1.0,
 ):
 
     if not validate_tool_list(tools_list):
