@@ -185,7 +185,13 @@ tools["Create CSV Advanced"] = {
 def run_example():
     from toolbox_creator.gui import create_gui
 
-    create_gui(tools, name="Example Toolbox", create_console=False, auto_scale=False)
+    create_gui(
+        tools,
+        name="Example Toolbox",
+        create_console=False,
+        auto_scale=False,
+        # scalar=0.6,
+    )
 
 
 if __name__ == "__main__":

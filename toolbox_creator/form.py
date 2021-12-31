@@ -29,7 +29,9 @@ def validate_inputs(function_name, values_func, window, tools):
     return validation
 
 
-def open_function(function_name, tools, create_console=False, icon=globe_icon):
+def open_function(
+    function_name, tools, create_console=False, icon=globe_icon, scalar=1.0
+):
     global thread, thread_message
     layout, buteo_function, listeners = layout_from_name(
         function_name, tools, create_console=create_console
@@ -39,7 +41,7 @@ def open_function(function_name, tools, create_console=False, icon=globe_icon):
         function_name,
         layout,
         resizable=True,
-        size=(900, 1100),
+        size=(int(900 * scalar), int(1100 * scalar)),
         finalize=True,
         icon=icon,
         element_justification="center",

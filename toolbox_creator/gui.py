@@ -19,8 +19,6 @@ DEFAULT_FONT = ("Helvetica", 10)
 DEFAULT_TEXT_JUSTIFICATION = "left"
 DEFAULT_BORDER_WIDTH = 0
 
-#
-
 
 def select_function(function_name, window, tools):
     description = get_function_description(function_name, tools)
@@ -33,7 +31,8 @@ def create_gui(
     theme="Reddit",
     create_console=False,
     icon=False,
-    auto_scale=False,
+    auto_scale=True,
+    scalar=1.0,
 ):
 
     if not validate_tool_list(tools_list):
@@ -55,7 +54,7 @@ def create_gui(
         home_layout(available_functions),
         resizable=True,
         auto_size_buttons=True,
-        size=(800, 600),
+        size=(int(800 * scalar), int(600 * scalar)),
         finalize=True,
         icon=globe_icon,
         element_justification="center",
@@ -85,7 +84,11 @@ def create_gui(
             ):
                 function_name = values["-FUNC-LIST-"][0]
                 open_function(
-                    function_name, tools_list, create_console=create_console, icon=icon
+                    function_name,
+                    tools_list,
+                    create_console=create_console,
+                    icon=icon,
+                    scalar=scalar,
                 )
         elif event == "-FUNC-LIST-":
             if ignore_list_update:
