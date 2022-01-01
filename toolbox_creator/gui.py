@@ -1,6 +1,6 @@
 import os
 import PySimpleGUIQt as sg
-from multiprocessing import Process
+from multiprocessing import Process, freeze_support
 from toolbox_creator.globe_icon import globe_icon
 from toolbox_creator.base import home_layout
 from toolbox_creator.form import open_function
@@ -36,7 +36,7 @@ def create_gui(
     scalar=0.6,
     top_menu=False,
 ):
-
+    """Creates a GUI for the toolbox from a list of tools."""
     if not validate_tool_list(tools_list):
         print("Unable to create GUI due to invalid setup list.")
         return
@@ -90,6 +90,8 @@ def create_gui(
                 and len(values["-FUNC-LIST-"]) != 0
             ):
                 function_name = values["-FUNC-LIST-"][0]
+
+                freeze_support()
 
                 p = Process(
                     target=open_function,

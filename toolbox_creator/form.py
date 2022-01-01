@@ -1,4 +1,5 @@
 import threading
+import multiprocessing
 import PySimpleGUIQt as sg
 from PySimpleGUIQt import POPUP_BUTTONS_NO_BUTTONS, WIN_CLOSED
 from toolbox_creator.globe_icon import globe_icon
@@ -9,10 +10,6 @@ from toolbox_creator.funcs import (
     get_default_date,
     update_inputs,
 )
-
-
-global thread
-global thread_message
 
 
 def validate_inputs(function_name, values_func, window, tools):
@@ -37,7 +34,6 @@ def open_function(
     theme="Reddit",
     scalar=1.0,
 ):
-    global thread, thread_message
     sg.theme(theme)
 
     layout, buteo_function, listeners = layout_from_name(
