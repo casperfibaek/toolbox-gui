@@ -6,6 +6,9 @@ from toolbox_creator.function_window import create_function_window
 from toolbox_creator.function_validation import validate_tool_list
 from toolbox_creator.utils import get_list_of_keys
 
+global window_opened
+window_opened = False
+
 
 def tool_selector_layout(functions, scalar=1.0, top_menu=True):
     """Creates the layout for the tool selector."""
@@ -109,6 +112,11 @@ def create_gui(
     top_menu=False,
 ):
     """Creates a GUI for the toolbox from a list of tools."""
+    global window_opened
+
+    if window_opened:
+        return
+
     if not validate_tool_list(tools_list):
         print("Unable to create GUI due to invalid setup list.")
         return
@@ -151,6 +159,8 @@ def create_gui(
         border_depth=0,
     )
 
+    window_opened = True
+
     select_function(available_functions[0], window, tools_list)
     current_selection = 0
     max_selection = len(available_functions) - 1
@@ -184,7 +194,7 @@ def create_gui(
                         theme,
                         scalar,
                     ),
-                    daemon=True,
+                    daemon=False,
                 )
                 p.start()
                 open_windows.append(p)
