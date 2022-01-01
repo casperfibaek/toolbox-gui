@@ -19,6 +19,8 @@ An executable can be created through pyinstaller like so:
     pyinstaller -wF --noconfirm --clean --noconsole --icon=./globe_icon.ico gui.py
 
 On windows, it is necessary to wrap the function to ensure it forks the process correctly.
+It is currently only possible to have one function window open at a time on Windows. This will be fixed in a future release.
+multiple windows can be enabled by setting run_subprocess=True
 ```python
 def main():
     tools = {} # define tools here.

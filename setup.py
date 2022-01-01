@@ -11,7 +11,7 @@ def readme():
 
 setuptools.setup(
     name="toolbox-creator-CFI",
-    version="0.0.28",
+    version="0.0.30",
     author="Casper Fibaek",
     author_email="casperfibaek@gmail.com",
     description="Create a toolbox for your functions",
