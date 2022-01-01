@@ -68,8 +68,12 @@ def validate_type(input_type, input_value, name, tool_name, tools):
             valid = False
             message = f"{name}: {input_value} contains invalid files."
 
-    elif input_type == "folder_save":
-        if isinstance(input_value, str) and os.path.isdir(input_value):
+    elif input_type == "folder_save" or input_type == "folder_open":
+        if (
+            isinstance(input_value, str)
+            and len(input_value) > 2  # "./"
+            and os.path.isdir(input_value)
+        ):
             valid = True
             cast = add_slash_to_end(input_value)
         else:
