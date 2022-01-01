@@ -110,6 +110,7 @@ def create_gui(
     auto_scale=True,
     scalar=0.6,
     top_menu=False,
+    run_subprocess=False,
 ):
     """Creates a GUI for the toolbox from a list of tools."""
     global window_opened
@@ -184,20 +185,29 @@ def create_gui(
             ):
                 function_name = values["-FUNC-LIST-"][0]
 
-                p = Process(
-                    target=create_function_window,
-                    args=(
+                if run_subprocess:
+                    p = Process(
+                        target=create_function_window,
+                        args=(
+                            function_name,
+                            tools_list,
+                            create_console,
+                            icon,
+                            theme,
+                            scalar,
+                        ),
+                    )
+                    p.start()
+                    open_windows.append(p)
+                else:
+                    create_function_window(
                         function_name,
                         tools_list,
                         create_console,
                         icon,
                         theme,
                         scalar,
-                    ),
-                    daemon=False,
-                )
-                p.start()
-                open_windows.append(p)
+                    )
         elif event == "-FUNC-LIST-":
             if ignore_list_update:
                 ignore_list_update = False
