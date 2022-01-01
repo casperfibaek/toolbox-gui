@@ -18,10 +18,15 @@ An executable can be created through pyinstaller like so:
     pyinstaller -wF --noconfirm --clean --noconsole --icon=path_to_ico_file path_to_gui_script.py
     pyinstaller -wF --noconfirm --clean --noconsole --icon=./globe_icon.ico gui.py
 
-TODO before 0.1.0
-- Reduce spaghetti
-- Fix scaling on non 4k screens.
+On windows, it is necessary to wrap the function to ensure it forks the process correctly.
+```python
+def main():
+    tools = {} # define tools here.
+    create_gui(tools, create_console=True)
 
+if __name__ == "__main__":
+    main()
+```
 
 ## Supports the following input types
 ### file_open

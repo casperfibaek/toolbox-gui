@@ -1,28 +1,100 @@
 import os
 import PySimpleGUIQt as sg
-from multiprocessing import Process, freeze_support
+from multiprocessing import Process
 from toolbox_creator.globe_icon import globe_icon
-from toolbox_creator.base import home_layout
-from toolbox_creator.form import open_function
-from toolbox_creator.funcs import (
-    get_list_of_functions,
-    get_function_description,
-    validate_tool_list,
-)
+from toolbox_creator.function_window import create_function_window
+from toolbox_creator.function_validation import validate_tool_list
+from toolbox_creator.utils import get_list_of_keys
 
 
-KEY_UP_QT = "special 16777235"
-KEY_DOWN_QT = "special 16777237"
-KEY_ENTER_QT = "special 16777220"
-DEFAULT_MARGINS = (0, 0)
-DEFAULT_ELEMENT_PADDING = (0, 0)
-DEFAULT_FONT = ("Helvetica", 10)
-DEFAULT_TEXT_JUSTIFICATION = "left"
-DEFAULT_BORDER_WIDTH = 0
+def tool_selector_layout(functions, scalar=1.0, top_menu=True):
+    """Creates the layout for the tool selector."""
+    description = "Select a function to run."
+
+    menu_def = [
+        ["&File", ["E&xit"]],
+        [
+            "&Options",
+            ["Paths", "Defaults"],
+        ],
+        [
+            "&Help",
+            ["Documentation", "About"],
+        ],
+    ]
+
+    col1 = sg.Column(
+        [
+            [
+                sg.Listbox(
+                    [str(i) for i in functions],
+                    key="-FUNC-LIST-",
+                    size_px=(round(300 * scalar), None),
+                    pad=((0, 0), (0, 0)),
+                    enable_events=True,
+                    default_values=[functions[0]],
+                )
+            ]
+        ],
+        size=(round(300 * scalar), None),
+        pad=((0, 0), (0, 0)),
+    )
+
+    col2 = sg.Column(
+        [
+            [
+                sg.Multiline(
+                    description,
+                    size_px=(None, None),
+                    key="-DESC-",
+                    disabled=True,
+                    background_color="#f1f1f1",
+                    pad=((0, 0), (0, 0)),
+                )
+            ],
+            [
+                sg.Button(
+                    "Open Function",
+                    key="-BUTTON1-",
+                    size_px=(round(500 * scalar), 60),
+                    pad=((0, 0), (10, 0)),
+                    bind_return_key=True,
+                    border_width=0,
+                )
+            ],
+        ],
+        size=(round(500 * scalar), None),
+        element_justification="left",
+        pad=((0, 0), (0, 0)),
+    )
+
+    base_layout = [
+        sg.Column(
+            [[col1, col2]],
+            size=(round(920 * scalar), None),
+            pad=((0, 0), (0, 0)),
+            scrollable=True,
+            element_justification="left",
+        )
+    ]
+
+    if top_menu:
+        return [
+            [
+                sg.Menu(
+                    menu_def,
+                    tearoff=False,
+                )
+            ],
+            base_layout,
+        ]
+
+    return [base_layout]
 
 
 def select_function(function_name, window, tools):
-    description = get_function_description(function_name, tools)
+    """Prints the description of the selected function."""
+    description = tools[function_name]["description"]
     window["-DESC-"].update(value=description)
 
 
@@ -46,14 +118,25 @@ def create_gui(
 
     sg.theme(theme)
 
+    KEY_UP_QT = "special 16777235"
+    KEY_DOWN_QT = "special 16777237"
+    KEY_ENTER_QT = "special 16777220"
+
+    sg.set_options(
+        element_padding=(0, 0),
+        margins=(0, 0),
+        font=("Helvetica", 10),
+        border_width=0,
+    )
+
     if icon is False:
         icon = globe_icon
 
-    available_functions = get_list_of_functions(tools_list)
+    available_functions = get_list_of_keys(tools_list)
 
     window = sg.Window(
         name,
-        home_layout(
+        tool_selector_layout(
             available_functions,
             scalar=scalar,
             top_menu=top_menu,
@@ -91,10 +174,8 @@ def create_gui(
             ):
                 function_name = values["-FUNC-LIST-"][0]
 
-                freeze_support()
-
                 p = Process(
-                    target=open_function,
+                    target=create_function_window,
                     args=(
                         function_name,
                         tools_list,
@@ -103,17 +184,9 @@ def create_gui(
                         theme,
                         scalar,
                     ),
-                    daemon=True,
                 )
                 p.start()
                 open_windows.append(p)
-                # open_function(
-                #     function_name,
-                #     tools_list,
-                #     create_console=create_console,
-                #     icon=icon,
-                #     scalar=scalar,
-                # )
         elif event == "-FUNC-LIST-":
             if ignore_list_update:
                 ignore_list_update = False
@@ -146,6 +219,3 @@ def create_gui(
             p.terminate()
         except Exception:
             pass
-
-
-# pyinstaller -wF --noconfirm --clean --noconsole --icon=./gui_elements/globe_icon.ico gui.py

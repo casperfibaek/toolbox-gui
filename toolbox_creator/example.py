@@ -215,7 +215,7 @@ def run_example():
     create_gui(
         tools,
         name="Example Toolbox",
-        create_console=True,
+        create_console=False,
         auto_scale=True,
         scalar=0.6,
         # theme="DarkGrey5",
