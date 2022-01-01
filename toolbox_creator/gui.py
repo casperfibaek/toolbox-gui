@@ -184,6 +184,7 @@ def create_gui(
                         theme,
                         scalar,
                     ),
+                    daemon=True,
                 )
                 p.start()
                 open_windows.append(p)
